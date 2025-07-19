@@ -293,11 +293,29 @@ function setupEvents() {
     const gyroToggle = document.getElementById("gyro-toggle");
     let checked = gyroToggle.checked;
     
-    gyroToggle.addEventListener("click", () => {
+    gyroToggle.addEventListener("click", async () => {
         checked = gyroToggle.checked;
 
         if (window.DeviceOrientationEvent) {
             if (checked) {
+                // Request permission on iOS devices
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    try {
+                        const permission = await DeviceOrientationEvent.requestPermission();
+                        if (permission !== 'granted') {
+                            console.log('Permission not granted');
+                            gyroToggle.checked = false;
+                            checked = false;
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error requesting permission:', error);
+                        gyroToggle.checked = false;
+                        checked = false;
+                        return;
+                    }
+                }
+
                 // Create new handler when enabled
                 gyroHandler = (event) => {
                 if (!isGyroInitialized) {
