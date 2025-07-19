@@ -1,7 +1,7 @@
 import { vertexShader, fragmentShader } from "./shaders.js";
 
 const config = {
-    logoPath: "https://ad1tyac0des.github.io/Interactive-Image-Distort-Effect/logo.png",
+    logoPath: "images/logo.png",
     logoSize: 1250,
     logoColor: "#404040",
     canvasBg: "#141414",
@@ -262,6 +262,7 @@ function render() {
 }
 
 function setupEvents() {
+    // Mouse movement for desktop
     document.addEventListener("mousemove", (event) => {
         const rect = canvas.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
@@ -269,6 +270,17 @@ function setupEvents() {
         mouse.y = (event.clientY - rect.top) * dpr;
         animationCount = 300;
     });
+
+    // Touch movement for mobile
+    document.addEventListener("touchmove", (event) => {
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX - rect.left) * dpr;
+        mouse.y = (touch.clientY - rect.top) * dpr;
+        animationCount = 300;
+    }, { passive: false });
 
     window.addEventListener("resize", () => {
         setupCanvas();
