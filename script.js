@@ -36,7 +36,7 @@ function setupWebGL() {
         powerPreference: "high-performance",
         premultipliedAlpha: false,
     });
-    
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 }
@@ -281,6 +281,72 @@ function setupEvents() {
         mouse.y = (touch.clientY - rect.top) * dpr;
         animationCount = 300;
     }, { passive: false });
+
+    // Gyro for mobile
+    let baseX = 0;
+    let baseY = 0;
+    let isGyroInitialized = false;
+    let lastDeltaX = 0;
+    let lastDeltaY = 0;
+    let gyroHandler = null;
+
+    const gyroToggle = document.getElementById("gyro-toggle");
+    let checked = gyroToggle.checked;
+    
+    gyroToggle.addEventListener("click", () => {
+        checked = gyroToggle.checked;
+
+        if (window.DeviceOrientationEvent) {
+            if (checked) {
+                // Create new handler when enabled
+                gyroHandler = (event) => {
+                if (!isGyroInitialized) {
+                    baseX = event.gamma || 0;
+                    baseY = event.beta || 0;
+                    isGyroInitialized = true;
+                    return;
+                }
+
+                const sensitivity = 8;
+                const gamma = event.gamma || 0;
+                const beta = event.beta || 0;
+
+                let deltaX = (gamma - baseX) * sensitivity;
+                let deltaY = (beta - baseY) * sensitivity;
+
+                const moveThreshold = 2;
+                if (Math.abs(deltaX) < moveThreshold) deltaX = 0;
+                if (Math.abs(deltaY) < moveThreshold) deltaY = 0;
+
+                const smoothFactor = 0.2;
+                deltaX = lastDeltaX + (deltaX - lastDeltaX) * smoothFactor;
+                deltaY = lastDeltaY + (deltaY - lastDeltaY) * smoothFactor;
+
+                const maxOffset = 150;
+                deltaX = Math.max(Math.min(deltaX, maxOffset), -maxOffset);
+                deltaY = Math.max(Math.min(deltaY, maxOffset), -maxOffset);
+
+                lastDeltaX = deltaX;
+                lastDeltaY = deltaY;
+
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+
+                mouse.x = (rect.width / 2 + deltaX) * dpr;
+                mouse.y = (rect.height / 2 + deltaY) * dpr;
+                animationCount = 300;
+                };
+                
+                window.addEventListener("deviceorientation", gyroHandler);
+            } else {
+                if (gyroHandler) {
+                    window.removeEventListener("deviceorientation", gyroHandler);
+                    gyroHandler = null;
+                    isGyroInitialized = false;
+                }
+            }
+        }
+    });
 
     window.addEventListener("resize", () => {
         setupCanvas();

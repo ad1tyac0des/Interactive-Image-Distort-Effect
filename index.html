@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'sans-serif';
         }
 
         canvas {
@@ -16,11 +18,53 @@
             height: 100vh;
             display: block;
         }
+
+        @media (max-width: 768px) {
+            #gyro-toggle-container {
+                position: absolute;
+                bottom: 13px;
+                right: 15px;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+            }
+
+            #gyro-toggle {
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border: 1px solid white;
+                position: relative;
+            }
+
+            #gyro-toggle:checked {
+                background-color: white;
+            }
+
+        }
+
+        @media (min-width: 769px) {
+            #gyro-toggle-container {
+                display: none;
+            }
+        }
     </style>
 </head>
+
 <body>
     <canvas id="canvas"></canvas>
+    <div id="gyro-toggle-container">
+        <label for="gyro-toggle">Gyro Mode</label>
+        <input type="checkbox" id="gyro-toggle">
+    </div>
 
     <script type="module" src="script.js"></script>
 </body>
+
 </html>
